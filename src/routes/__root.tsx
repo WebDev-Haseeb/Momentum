@@ -10,6 +10,8 @@ import {
 
 import appCss from "../styles.css?url";
 import { AppShell } from "@/components/AppShell";
+import { InstallPrompt } from "@/components/InstallPrompt";
+import { MobileOnlyNotice } from "@/components/MobileOnlyNotice";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -63,10 +65,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Momentum" },
-      { title: "Momentum — Personal OS for Focus" },
+      { title: "Momentum - Personal OS for Focus" },
       {
         name: "description",
-        content: "Tasks, habits, and notes — a focused daily operating system.",
+        content: "Tasks, habits, and notes - a focused daily operating system.",
       },
     ],
     links: [
@@ -101,6 +103,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppShell />
+      <MobileOnlyNotice />
+      <InstallPrompt />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

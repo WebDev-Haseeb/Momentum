@@ -14,7 +14,6 @@ interface TasksState {
     priority?: Priority;
     dueDate?: string;
     dueTime?: string;
-    reminderAt?: string;
     reminderMode?: ReminderMode;
   }) => Task;
   updateTask: (id: string, patch: Partial<Task>) => void;
@@ -46,7 +45,6 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       priority: input.priority ?? "medium",
       dueDate: input.dueDate,
       dueTime: input.dueTime,
-      reminderAt: input.reminderAt,
       reminderMode: input.reminderMode ?? "none",
       status: "pending",
       createdAt: now,

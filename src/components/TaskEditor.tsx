@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/select";
 import type { Task, Priority, ReminderMode } from "@/lib/types";
 import { useTasksStore } from "@/stores/tasks";
-import { Trash2, Archive, RotateCcw, Clock, Bell, BellOff } from "lucide-react";
+import { Trash2, Archive, RotateCcw, Clock, CalendarPlus, Bell } from "lucide-react";
 import { PRIORITY_LABEL } from "./PriorityDot";
 import { cn } from "@/lib/utils";
+import { downloadCalendarEvent } from "@/lib/calendar";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -49,12 +51,11 @@ function formatHour(hour24: number): string {
   return `${display}:00 ${ampm}`;
 }
 
-const REMINDER_OPTIONS: { value: ReminderMode; label: string; icon: typeof Bell }[] = [
-  { value: "none", label: "No reminder", icon: BellOff },
-  { value: "10min", label: "10 min before", icon: Bell },
-  { value: "15min", label: "15 min before", icon: Bell },
-  { value: "30min", label: "30 min before", icon: Bell },
-  { value: "daily", label: "Daily at this time", icon: Bell },
+const REMINDER_OPTIONS: { value: ReminderMode; label: string }[] = [
+  { value: "none", label: "No notification" },
+  { value: "10min", label: "10 min before" },
+  { value: "15min", label: "15 min before" },
+  { value: "30min", label: "30 min before" },
 ];
 
 export function TaskEditor({ open, onOpenChange, task }: Props) {
@@ -102,6 +103,7 @@ export function TaskEditor({ open, onOpenChange, task }: Props) {
     if (!title.trim()) return;
     const iso = dueDate ? new Date(dueDate + "T09:00:00").toISOString() : undefined;
     const dueTime = selectedHour !== null ? `${String(selectedHour).padStart(2, "0")}:00` : undefined;
+    const mode = dueTime ? reminderMode : "none";
 
     if (task) {
       updateTask(task.id, {
@@ -110,20 +112,68 @@ export function TaskEditor({ open, onOpenChange, task }: Props) {
         priority,
         dueDate: iso,
         dueTime,
-        reminderMode: dueTime ? reminderMode : "none",
+        reminderMode: mode,
       });
     } else {
       addTask({
-        title,
-        description,
+        title: title.trim(),
+        description: description.trim() || undefined,
         priority,
         dueDate: iso,
         dueTime,
-        reminderMode: dueTime ? reminderMode : "none",
+        reminderMode: mode,
       });
     }
     onOpenChange(false);
   };
+
+  /** Save and immediately download the .ics calendar event */
+  const saveAndAddToCalendar = () => {
+    if (!title.trim()) return;
+    const iso = dueDate ? new Date(dueDate + "T09:00:00").toISOString() : undefined;
+    const dueTime = selectedHour !== null ? `${String(selectedHour).padStart(2, "0")}:00` : undefined;
+    const mode = dueTime ? reminderMode : "none";
+
+    let savedTask: Task;
+    if (task) {
+      updateTask(task.id, {
+        title: title.trim(),
+        description: description.trim() || undefined,
+        priority,
+        dueDate: iso,
+        dueTime,
+        reminderMode: mode,
+      });
+      savedTask = {
+        ...task,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        priority,
+        dueDate: iso,
+        dueTime,
+        reminderMode: mode,
+      };
+    } else {
+      savedTask = addTask({
+        title: title.trim(),
+        description: description.trim() || undefined,
+        priority,
+        dueDate: iso,
+        dueTime,
+        reminderMode: mode,
+      });
+    }
+
+    const ok = downloadCalendarEvent(savedTask);
+    if (ok) {
+      toast.success("Calendar event downloaded — add it to get notified!");
+    } else {
+      toast.error("Could not generate calendar event");
+    }
+    onOpenChange(false);
+  };
+
+  const hasTimeSet = selectedHour !== null && dueDate;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -247,15 +297,14 @@ export function TaskEditor({ open, onOpenChange, task }: Props) {
           )}
 
           {/* Notification Reminder — appears only when a time is selected */}
-          {selectedHour !== null && dueDate && (
-            <div className="space-y-2">
+          {hasTimeSet && (
+            <div className="space-y-2.5">
               <div className="flex items-center gap-2">
                 <Bell className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-medium">Reminder</Label>
+                <Label className="text-sm font-medium">Notify me</Label>
               </div>
-              <div className="grid grid-cols-1 gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
                 {REMINDER_OPTIONS.map((opt) => {
-                  const Icon = opt.icon;
                   const active = reminderMode === opt.value;
                   return (
                     <button
@@ -263,33 +312,74 @@ export function TaskEditor({ open, onOpenChange, task }: Props) {
                       type="button"
                       onClick={() => setReminderMode(opt.value)}
                       className={cn(
-                        "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-[14px] transition active:scale-[0.98]",
+                        "flex items-center justify-center rounded-xl px-3 py-2.5 text-[13px] font-medium transition active:scale-[0.98]",
                         active
                           ? "bg-foreground text-background"
                           : "bg-muted/50 text-foreground/80 hover:bg-muted",
                       )}
                     >
-                      <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
-                      <span className="font-medium">{opt.label}</span>
+                      {opt.label}
                     </button>
                   );
                 })}
               </div>
+              {reminderMode !== "none" && (
+                <p className="text-xs text-muted-foreground px-1">
+                  You&apos;ll get a notification via your phone&apos;s calendar.
+                </p>
+              )}
             </div>
           )}
 
-          {/* Save button */}
-          <Button
-            onClick={save}
-            className="w-full h-12 rounded-2xl text-base"
-            disabled={!title.trim()}
-          >
-            {task ? "Save changes" : "Add task"}
-          </Button>
+          {/* Action buttons */}
+          <div className="space-y-2.5 pt-1">
+            {/* Primary: Add to Calendar (if time + reminder set) */}
+            {hasTimeSet && reminderMode !== "none" ? (
+              <>
+                <Button
+                  onClick={saveAndAddToCalendar}
+                  className="w-full h-12 rounded-2xl text-base gap-2"
+                  disabled={!title.trim()}
+                >
+                  <CalendarPlus className="h-4.5 w-4.5" />
+                  {task ? "Save & add to calendar" : "Add task & calendar event"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={!title.trim()}
+                  className="w-full text-center text-[13px] font-medium text-muted-foreground py-1.5 transition active:text-foreground disabled:opacity-50"
+                >
+                  Save without calendar
+                </button>
+              </>
+            ) : (
+              <Button
+                onClick={save}
+                className="w-full h-12 rounded-2xl text-base"
+                disabled={!title.trim()}
+              >
+                {task ? "Save changes" : "Add task"}
+              </Button>
+            )}
+          </div>
 
           {/* Edit-mode action buttons */}
           {task && (
             <div className="flex gap-2 pt-1 pb-1">
+              {/* Re-download calendar event if time is set */}
+              {task.dueTime && task.reminderMode && task.reminderMode !== "none" && (
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    downloadCalendarEvent(task);
+                    toast.success("Calendar event downloaded");
+                  }}
+                >
+                  <CalendarPlus className="h-4 w-4 mr-1.5" /> Calendar
+                </Button>
+              )}
               {task.status === "archived" ? (
                 <Button
                   variant="outline"
@@ -299,7 +389,7 @@ export function TaskEditor({ open, onOpenChange, task }: Props) {
                     onOpenChange(false);
                   }}
                 >
-                  <RotateCcw className="h-4 w-4 mr-2" /> Restore
+                  <RotateCcw className="h-4 w-4 mr-1.5" /> Restore
                 </Button>
               ) : (
                 <Button
@@ -310,7 +400,7 @@ export function TaskEditor({ open, onOpenChange, task }: Props) {
                     onOpenChange(false);
                   }}
                 >
-                  <Archive className="h-4 w-4 mr-2" /> Archive
+                  <Archive className="h-4 w-4 mr-1.5" /> Archive
                 </Button>
               )}
               <Button
@@ -321,7 +411,7 @@ export function TaskEditor({ open, onOpenChange, task }: Props) {
                   onOpenChange(false);
                 }}
               >
-                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                <Trash2 className="h-4 w-4 mr-1.5" /> Delete
               </Button>
             </div>
           )}

@@ -1,0 +1,200 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-hairline: var(--hairline);
+  --color-priority-critical: var(--priority-critical);
+  --color-priority-high: var(--priority-high);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-low: var(--priority-low);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 1rem;
+
+  /* Warm paper-and-ink palette, Notion-influenced */
+  --background: oklch(0.985 0.004 80);
+  --foreground: oklch(0.2 0.012 270);
+  --surface: oklch(1 0 0);
+  --surface-elevated: oklch(1 0 0);
+  --hairline: oklch(0.92 0.004 80);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.012 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.012 270);
+
+  /* Signature indigo — deeper, more confident */
+  --primary: oklch(0.46 0.2 270);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.965 0.006 80);
+  --secondary-foreground: oklch(0.25 0.02 265);
+  --muted: oklch(0.965 0.006 80);
+  --muted-foreground: oklch(0.52 0.015 265);
+  --accent: oklch(0.95 0.014 270);
+  --accent-foreground: oklch(0.25 0.02 265);
+
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.92 0.004 80);
+  --input: oklch(0.93 0.005 80);
+  --ring: oklch(0.46 0.2 270);
+
+  --priority-critical: oklch(0.6 0.23 25);
+  --priority-high: oklch(0.72 0.17 55);
+  --priority-medium: oklch(0.66 0.14 220);
+  --priority-low: oklch(0.7 0.02 260);
+  --success: oklch(0.62 0.16 150);
+  --warning: oklch(0.74 0.16 70);
+
+  --sidebar: oklch(0.985 0.004 80);
+  --sidebar-foreground: oklch(0.2 0.012 270);
+  --sidebar-primary: oklch(0.46 0.2 270);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.014 270);
+  --sidebar-accent-foreground: oklch(0.25 0.02 265);
+  --sidebar-border: oklch(0.92 0.004 80);
+  --sidebar-ring: oklch(0.46 0.2 270);
+}
+
+.dark {
+  /* Deep neutral ink, slight cool tint */
+  --background: oklch(0.145 0.008 270);
+  --foreground: oklch(0.97 0.004 260);
+  --surface: oklch(0.195 0.01 270);
+  --surface-elevated: oklch(0.225 0.012 270);
+  --hairline: oklch(1 0 0 / 7%);
+
+  --card: oklch(0.195 0.01 270);
+  --card-foreground: oklch(0.97 0.004 260);
+  --popover: oklch(0.21 0.01 270);
+  --popover-foreground: oklch(0.97 0.004 260);
+
+  --primary: oklch(0.74 0.17 265);
+  --primary-foreground: oklch(0.16 0.008 270);
+  --secondary: oklch(0.24 0.012 270);
+  --secondary-foreground: oklch(0.97 0.005 260);
+  --muted: oklch(0.24 0.012 270);
+  --muted-foreground: oklch(0.7 0.015 260);
+  --accent: oklch(0.28 0.015 265);
+  --accent-foreground: oklch(0.97 0.005 260);
+
+  --destructive: oklch(0.66 0.21 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.74 0.17 265);
+
+  --priority-critical: oklch(0.72 0.21 25);
+  --priority-high: oklch(0.78 0.16 55);
+  --priority-medium: oklch(0.76 0.13 220);
+  --priority-low: oklch(0.62 0.015 260);
+  --success: oklch(0.74 0.16 150);
+  --warning: oklch(0.8 0.15 80);
+
+  --sidebar: oklch(0.195 0.01 270);
+  --sidebar-foreground: oklch(0.97 0.005 260);
+  --sidebar-primary: oklch(0.74 0.17 265);
+  --sidebar-primary-foreground: oklch(0.16 0.008 270);
+  --sidebar-accent: oklch(0.28 0.015 265);
+  --sidebar-accent-foreground: oklch(0.97 0.005 260);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.74 0.17 265);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family:
+      -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+    overscroll-behavior-y: none;
+    font-feature-settings: "ss01", "cv11";
+  }
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Tighten headings, Apple/Stripe-style */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.022em;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+  .hairline-t {
+    border-top: 1px solid var(--color-hairline);
+  }
+  .hairline-b {
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .hairline {
+    border: 1px solid var(--color-hairline);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}

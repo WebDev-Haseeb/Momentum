@@ -1,4 +1,4 @@
-import { Check, AlertCircle } from "lucide-react";
+import { Check, AlertCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/lib/types";
 import { PRIORITY_COLOR_VAR } from "./PriorityDot";
@@ -67,6 +67,18 @@ export function TaskRow({ task, onToggle, onOpen, showAttention, flat }: Props) 
               >
                 {overdue && <AlertCircle className="h-3 w-3" strokeWidth={2.4} />}
                 {formatDueLabel(task.dueDate)}
+                {task.dueTime && (
+                  <span className="inline-flex items-center gap-0.5 ml-1">
+                    <Clock className="h-2.5 w-2.5" strokeWidth={2.2} />
+                    {(() => {
+                      const [hStr] = task.dueTime.split(":");
+                      const h = parseInt(hStr, 10);
+                      const ampm = h < 12 ? "AM" : "PM";
+                      const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                      return `${display} ${ampm}`;
+                    })()}
+                  </span>
+                )}
               </span>
             )}
             {task.description && task.dueDate && (

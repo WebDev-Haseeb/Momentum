@@ -57,7 +57,7 @@ function SettingsPage() {
   return (
     <div className="space-y-7 pt-1">
       <Group title="Appearance">
-        <div className="rounded-2xl bg-surface p-1.5">
+        <div className="rounded-2xl bg-surface hairline p-1.5">
           <div className="grid grid-cols-3 gap-1.5">
             {(
               [
@@ -230,7 +230,7 @@ function Group({
   );
 }
 function Card({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-2xl bg-surface px-4">{children}</div>;
+  return <div className="rounded-2xl bg-surface hairline px-4">{children}</div>;
 }
 function Row({ children }: { children: React.ReactNode }) {
   return <div className="flex items-center justify-between py-3.5">{children}</div>;

@@ -67,7 +67,7 @@ function NotesPage() {
                 setEditing(n);
                 setOpen(true);
               }}
-              className="rounded-2xl bg-surface p-4 text-left transition active:scale-[0.99]"
+              className="rounded-2xl bg-surface hairline p-4 text-left transition active:scale-[0.99]"
             >
               {n.title && <p className="font-semibold truncate">{n.title}</p>}
               <p className={`text-sm text-muted-foreground line-clamp-3 ${n.title ? "mt-1" : ""}`}>

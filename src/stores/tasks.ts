@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Task, Priority } from "@/lib/types";
+import type { Task, Priority, ReminderMode } from "@/lib/types";
 import { kvGet, kvSet } from "@/lib/db";
 
 const KEY = "tasks";
@@ -13,7 +13,9 @@ interface TasksState {
     description?: string;
     priority?: Priority;
     dueDate?: string;
+    dueTime?: string;
     reminderAt?: string;
+    reminderMode?: ReminderMode;
   }) => Task;
   updateTask: (id: string, patch: Partial<Task>) => void;
   toggleComplete: (id: string) => void;
@@ -43,7 +45,9 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       description: input.description?.trim() || undefined,
       priority: input.priority ?? "medium",
       dueDate: input.dueDate,
+      dueTime: input.dueTime,
       reminderAt: input.reminderAt,
+      reminderMode: input.reminderMode ?? "none",
       status: "pending",
       createdAt: now,
       updatedAt: now,

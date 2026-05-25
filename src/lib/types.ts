@@ -1,13 +1,17 @@
 export type Priority = "critical" | "high" | "medium" | "low";
 export type TaskStatus = "pending" | "completed" | "archived";
 
+export type ReminderMode = "none" | "10min" | "15min" | "30min" | "daily";
+
 export interface Task {
   id: string;
   title: string;
   description?: string;
   priority: Priority;
   dueDate?: string; // ISO
+  dueTime?: string; // HH:mm (24h), separate from dueDate
   reminderAt?: string; // ISO
+  reminderMode?: ReminderMode;
   status: TaskStatus;
   createdAt: string;
   updatedAt: string;

@@ -162,6 +162,9 @@
       -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
     overscroll-behavior-y: none;
     font-feature-settings: "ss01", "cv11";
+    /* Remove any default margin/padding to extend to full viewport */
+    margin: 0;
+    padding: 0;
   }
   button {
     -webkit-tap-highlight-color: transparent;
@@ -196,5 +199,19 @@
   .num {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
+  }
+  /* Status bar fill — extends the app background into the OS status bar area */
+  .status-bar-fill {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    z-index: 100;
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--color-primary) 12%, var(--color-background) 88%) 0%,
+      var(--color-background) 100%
+    );
   }
 }

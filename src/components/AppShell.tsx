@@ -57,6 +57,8 @@ export function AppShell() {
 
   return (
     <div className="relative mx-auto flex min-h-dvh max-w-[480px] flex-col bg-background">
+      {/* Status bar fill — themed gradient behind the OS status bar */}
+      <div className="status-bar-fill" aria-hidden />
       {/* Header — minimal on home (the page renders its own hero), standard elsewhere */}
       {!isHome && (
         <header className="safe-top sticky top-0 z-30 bg-background/85 backdrop-blur-xl">

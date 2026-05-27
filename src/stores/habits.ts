@@ -10,10 +10,11 @@ interface HabitsState {
   habits: Habit[];
   hydrated: boolean;
   hydrate: () => Promise<void>;
-  addHabit: (input: { name: string; icon?: string }) => Habit;
+  addHabit: (input: { name: string; icon?: string; goalDays?: number }) => Habit;
   updateHabit: (id: string, patch: Partial<Habit>) => void;
   remove: (id: string) => void;
-  toggleToday: (id: string) => void;
+  /** Toggle today's completion. Returns the new streak count so UI can check for goal hits. */
+  toggleToday: (id: string) => number;
   toggleYesterday: (id: string) => void;
   deleteAll: () => void;
 }
@@ -22,6 +23,12 @@ function persist(habits: Habit[]) {
   void kvSet(KEY, habits);
 }
 
+/**
+ * Calculate the current consecutive streak ending at today (or yesterday).
+ * Uses local midnight boundaries — each day resets at exactly 12:00 AM.
+ * `todayKey()` returns YYYY-MM-DD based on `new Date()`, which uses the
+ * device's local timezone, so the day boundary is always local midnight.
+ */
 export function currentStreak(history: string[]): number {
   if (!history.length) return 0;
   const set = new Set(history);
@@ -61,11 +68,12 @@ export const useHabitsStore = create<HabitsState>((set, get) => ({
     const data = (await kvGet<Habit[]>(KEY)) ?? [];
     set({ habits: data, hydrated: true });
   },
-  addHabit: ({ name, icon }) => {
+  addHabit: ({ name, icon, goalDays }) => {
     const h: Habit = {
       id: crypto.randomUUID(),
       name: name.trim(),
       icon,
+      goalDays: goalDays && goalDays > 0 ? goalDays : undefined,
       createdAt: new Date().toISOString(),
       history: [],
     };
@@ -86,13 +94,17 @@ export const useHabitsStore = create<HabitsState>((set, get) => ({
   },
   toggleToday: (id) => {
     const key = todayKey();
+    let newStreak = 0;
     const habits = get().habits.map((h) => {
       if (h.id !== id) return h;
       const has = h.history.includes(key);
-      return { ...h, history: has ? h.history.filter((d) => d !== key) : [...h.history, key] };
+      const updated = has ? h.history.filter((d) => d !== key) : [...h.history, key];
+      newStreak = has ? 0 : currentStreak(updated);
+      return { ...h, history: updated };
     });
     set({ habits });
     persist(habits);
+    return newStreak;
   },
   toggleYesterday: (id) => {
     const key = format(subDays(new Date(), 1), "yyyy-MM-dd");

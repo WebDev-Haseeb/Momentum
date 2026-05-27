@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useHabitsStore, currentStreak, longestStreak } from "@/stores/habits";
 import type { Habit } from "@/lib/types";
 import { todayKey } from "@/lib/date";
 import { HabitEditor } from "@/components/HabitEditor";
-import { Check, Flame, RotateCcw } from "lucide-react";
+import { Check, Flame, RotateCcw, Target, Trophy } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { getHabitIcon } from "@/lib/habit-icons";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/habits")({
   head: () => ({ meta: [{ title: "Habits — Momentum" }] }),
@@ -21,6 +22,31 @@ function HabitsPage() {
   const [editing, setEditing] = useState<Habit | null>(null);
   const [open, setOpen] = useState(false);
 
+  const handleToggleToday = useCallback(
+    (habit: Habit) => {
+      const newStreak = toggleToday(habit.id);
+      // Check if the streak just hit the goal
+      if (habit.goalDays && newStreak > 0 && newStreak === habit.goalDays) {
+        toast.success(`🎉 ${habit.name} — ${habit.goalDays}-day streak reached!`, {
+          description: "Amazing consistency! Keep going or set a new goal.",
+          duration: 5000,
+        });
+      }
+      // Also celebrate multiples of the goal
+      if (
+        habit.goalDays &&
+        newStreak > habit.goalDays &&
+        newStreak % habit.goalDays === 0
+      ) {
+        toast.success(
+          `🔥 ${habit.name} — ${newStreak} days! That's ${newStreak / habit.goalDays}x your goal!`,
+          { duration: 4000 },
+        );
+      }
+    },
+    [toggleToday],
+  );
+
   return (
     <div className="space-y-3 pt-1">
       {habits.length === 0 ? (
@@ -32,7 +58,7 @@ function HabitsPage() {
           <HabitCard
             key={h.id}
             habit={h}
-            onToggleToday={() => toggleToday(h.id)}
+            onToggleToday={() => handleToggleToday(h)}
             onToggleYesterday={() => toggleYesterday(h.id)}
             onEdit={() => {
               setEditing(h);
@@ -75,6 +101,11 @@ function HabitCard({
   const best = longestStreak(habit.history);
   const pct = last30.filter((d) => d.on).length;
 
+  // Goal progress
+  const hasGoal = habit.goalDays && habit.goalDays > 0;
+  const goalProgress = hasGoal ? Math.min(streak / habit.goalDays!, 1) : 0;
+  const goalReached = hasGoal && streak >= habit.goalDays!;
+
   return (
     <div className="rounded-2xl bg-surface hairline p-4">
       <div className="flex items-center gap-3">
@@ -110,7 +141,41 @@ function HabitCard({
         </button>
       </div>
 
-      <div className="mt-4 flex gap-[3px]">
+      {/* Goal progress bar */}
+      {hasGoal && (
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+              {goalReached ? (
+                <>
+                  <Trophy className="h-3 w-3 text-warning" strokeWidth={2.2} />
+                  <span className="text-warning">Goal reached!</span>
+                </>
+              ) : (
+                <>
+                  <Target className="h-3 w-3" strokeWidth={2.2} />
+                  <span>{streak}/{habit.goalDays} days</span>
+                </>
+              )}
+            </div>
+            <span className="text-[11px] font-medium text-muted-foreground num">
+              {Math.round(goalProgress * 100)}%
+            </span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all duration-500",
+                goalReached ? "bg-warning" : "bg-foreground/70",
+              )}
+              style={{ width: `${Math.round(goalProgress * 100)}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Last 30 days chart */}
+      <div className={cn("flex gap-[3px]", hasGoal ? "mt-3" : "mt-4")}>
         {last30.map((d) => (
           <div
             key={d.k}

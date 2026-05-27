@@ -21,6 +21,7 @@ export interface Habit {
   id: string;
   name: string;
   icon?: string; // emoji
+  goalDays?: number; // target streak days (e.g. 7, 21, 30)
   createdAt: string;
   // ISO date strings (YYYY-MM-DD) on which habit was completed
   history: string[];
